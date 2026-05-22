@@ -1,0 +1,5 @@
+Options -Indexes
+
+<FilesMatch "(\.log$|\.env$|firebase_service_key\.json$|google-services\.json$|.*service.*key.*\.json$|.*firebase-adminsdk.*\.json$)">
+    Require all denied
+</FilesMatch>

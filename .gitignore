@@ -1,0 +1,32 @@
+.env
+*.env
+
+# Firebase / Google service account keys
+*service_key.json
+*firebase-adminsdk*.json
+google-services.json
+
+# Composer dependencies
+vendor/
+
+# Node dependencies
+node_modules/
+
+# Zip files
+*.zip
+
+# Logs
+*.log
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+# Runtime uploads / generated media
+uploads/asset_images/*
+!uploads/asset_images/.htaccess
+
+# Local payment/debug output
+apps/rental/controller/api/pmt.log
+apps/rental/controller/api/fcm.log

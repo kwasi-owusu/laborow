@@ -1,0 +1,105 @@
+# Disable directory listings and prevent MultiViews conflicts
+Options -Indexes -MultiViews
+# Protect backend secrets, service-account files, and runtime logs
+<FilesMatch "(^\.env$|\.log$|firebase_service_key\.json$|google-services\.json$|tuetra-.*firebase.*\.json$|.*service.*key.*\.json$)">
+    Require all denied
+</FilesMatch>
+
+# Enable mod_rewrite
+RewriteEngine On
+
+# Set custom error page
+ErrorDocument 404 /404.html
+
+#########################
+# URL REWRITE RULES
+#########################
+
+# Home and logout
+RewriteRule ^home/?$ index.php [L]
+RewriteRule ^logout/?$ apps/sign_out.php [L]
+
+#########################
+# AUTHENTICATION ROUTES
+#########################
+RewriteRule ^login/?$ apps/auth/view/do.login.php [L]
+RewriteRule ^signup/?$ apps/auth/view/do.signup.php [L]
+RewriteRule ^forgot-password/?$ apps/auth/view/do.forgot-password.php [L]
+RewriteRule ^account/?$ apps/dashboard/view/do.my_account.php [L]
+
+#########################
+# LISTING ROUTES
+#########################
+RewriteRule ^list/?$ apps/listing/view/do.add_listing.php [L]
+RewriteRule ^rent/([^/]+)/?$ apps/listing/view/do.this_category_listing.php?cat_slg=$1 [QSA,L]
+
+#########################
+# API ROUTES
+#########################
+# Auth:
+RewriteRule ^api/auth/add_user(.*)?$ apps/auth/controller/api/AddNewUser.php [L]
+RewriteRule ^api/auth/user(.*)?$ apps/auth/controller/api/GetSingleUser.php [L]
+RewriteRule ^api/auth/change_password(.*)?$ apps/auth/controller/api/UpdateMyPassword.php [L]
+RewriteRule ^api/auth/update_user(.*)?$ apps/auth/controller/api/UpdateUser.php [L]
+RewriteRule ^api/auth/login(.*)?$ apps/auth/controller/api/UserLogin.php [L]
+RewriteRule ^api/auth/verify(.*)?$ apps/auth/controller/api/APIVerifyUserEmail.php [L]
+RewriteRule ^api/auth/update_device_token(.*)?$ apps/auth/controller/api/UpdateUserDeviceToken.php [L]
+
+# Listings:
+RewriteRule ^api/listing/add(.*)?$ apps/listing/controller/api/AddListing.php [L]
+RewriteRule ^api/listing/all(.*)?$ apps/listing/controller/api/AllAssets.php [L]
+RewriteRule ^api/listing/cat(.*)?$ apps/listing/controller/api/ByCategory.php [L]
+RewriteRule ^api/listing/sub_cat(.*)?$ apps/listing/controller/api/BySubCategory.php [L]
+RewriteRule ^api/listing/all_listing(.*)?$ apps/listing/controller/api/FetchAllListing.php [L]
+RewriteRule ^api/listing/featured(.*)?$ apps/listing/controller/api/FetchFeaturedListings.php [L]
+RewriteRule ^api/listing/most_viewed(.*)?$ apps/listing/controller/api/FetchMostViewed.php [L]
+RewriteRule ^api/listing/single(.*)?$ apps/listing/controller/api/FetchSingleAsset.php [L]
+RewriteRule ^api/listing/rent_count(.*)?$ apps/listing/controller/api/IncreaseAssetRentCount.php [L]
+RewriteRule ^api/listing/view_count(.*)?$ apps/listing/controller/api/IncreaseAssetViewCount.php [L]
+RewriteRule ^api/listing/random_ten(.*)?$ apps/listing/controller/api/RandomTenAssets.php [L]
+RewriteRule ^api/listing/me(.*)?$ apps/listing/controller/api/FetchMyAssets.php [L]
+RewriteRule ^api/listing/update(.*)?$ apps/listing/controller/api/UpdateMyAssets.php [L]
+RewriteRule ^api/listing/popular(.*)?$ apps/listing/controller/api/FetchPopularListings.php [L]
+
+# Rentals:
+RewriteRule ^api/rent/ask(.*)?$ apps/rental/controller/api/RentRequest.php [L]
+RewriteRule ^api/rent/my_requests(.*)?$ apps/rental/controller/api/FetchMyRentRequest.php [L]
+RewriteRule ^api/rent/my_pending_requests(.*)?$ apps/rental/controller/api/FetchMyPendingRentalRequest.php [L]
+RewriteRule ^api/rent/do(.*)?$ apps/rental/controller/api/RentThis.php [L]
+RewriteRule ^api/rent/update_pmt(.*)?$ apps/rental/controller/api/UpdateRentPMT.php [L]
+
+RewriteRule ^api/rent/return_asset(.*)?$ apps/rental/controller/api/AssetReturnController.php [L]
+RewriteRule ^api/rent/confirm_asset_return(.*)?$ apps/rental/controller/api/ConfirmAssetReturnByOwner.php [L]
+
+RewriteRule ^api/rent/issue_asset(.*)?$ apps/rental/controller/api/IssueAssetByOwner.php [L]
+RewriteRule ^api/rent/confirm_asset_receipt(.*)?$ apps/rental/controller/api/ConfirmAssetReceiptByRenter.php [L]
+
+# Assets 
+RewriteRule ^api/assets/categories(.*)?$ apps/assets/controller/api/GetAssetCategoryList.php [L]
+RewriteRule ^api/assets/sub_categories(.*)?$ apps/assets/controller/api/GetAssetSubCategoryList.php [L]
+
+
+# payment
+RewriteRule ^api/pmt/verify(.*)?$ apps/rental/controller/api/VerifyRentPMT.php [L]
+
+
+## Callback
+RewriteRule ^api/callback(.*)?$ apps/notifications/controller/api/Callback.php [L]
+
+
+# Businesses 
+RewriteRule ^api/businesses/all(.*)?$ apps/businesses/controller/api/APIListAllRentalBusiness.php [L]
+RewriteRule ^api/businesses/single(.*)?$ apps/businesses/controller/api/APIListThisRentalBusiness.php [L]
+RewriteRule ^api/businesses/update(.*)?$ apps/businesses/controller/api/APIUpdateBusiness.php [L]
+
+#########################
+# DEFAULT FALLBACK ROUTE (SLUGS)
+#########################
+
+# Only apply fallback if the file/folder doesn't exist
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-l
+
+# Route any remaining slug to single listing page
+RewriteRule ^(.+?)/?$ apps/listing/view/do.single_listing.php?slg=$1 [QSA,L]

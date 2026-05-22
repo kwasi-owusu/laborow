@@ -1,0 +1,5 @@
+Options -Indexes
+# Protect backend secrets, service-account files, and runtime logs
+<FilesMatch "(^\.env$|\.log$|firebase_service_key\.json$|google-services\.json$|tuetra-.*firebase.*\.json$|.*service.*key.*\.json$)">
+    Require all denied
+</FilesMatch>
